@@ -1,0 +1,24 @@
+{
+  "name": "agentropolis-offgrid-pub",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Public scaffold for the Agentropolis Intelligence Grid and offgrid agent coordination protocol.",
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-registry.mjs",
+    "lint": "echo 'lint placeholder: add eslint when codebase expands'",
+    "test": "echo 'test placeholder: add runtime tests when implementations land'"
+  },
+  "keywords": [
+    "agentropolis",
+    "agentic-commerce",
+    "ai-agents",
+    "skill-registry",
+    "offgrid",
+    "multi-agent-systems"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
