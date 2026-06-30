@@ -1,0 +1,131 @@
+version: "3.9"
+
+# ============================================================
+# AGENTROPOLIS OFFGRID NODE — Docker Compose
+# github.com/wiredchaos/AGENTROPOLIS-OFFGRID-PUB
+# ALL MINDS VALID.
+# ============================================================
+
+services:
+
+  # ── Core LLM Inference ───────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: agentropolis-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # ── RELAY MCP Coordination Server ────────────────────────
+  relay:
+    build: ./node
+    container_name: agentropolis-relay
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ID=${NODE_ID}
+      - DISTRICT_ID=${DISTRICT_ID}
+      - OPERATOR_WALLET=${OPERATOR_WALLET}
+      - RELAY_COORDINATOR_URL=${RELAY_COORDINATOR_URL:-https://agentropolis.chaoswired.workers.dev}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - OLLAMA_URL=http://ollama:11434
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - XENTS_CONTRACT=${XENTS_CONTRACT}
+      - QUICKNODE_BASE_URL=${QUICKNODE_BASE_URL}
+      - QUICKNODE_SOLANA_URL=${QUICKNODE_SOLANA_URL}
+    depends_on:
+      - ollama
+    volumes:
+      - relay_data:/app/data
+
+  # ── MCP: Filesystem ──────────────────────────────────────
+  mcp-filesystem:
+    image: node:20-alpine
+    container_name: agentropolis-mcp-filesystem
+    restart: unless-stopped
+    command: npx -y @modelcontextprotocol/server-filesystem /data
+    volumes:
+      - node_data:/data
+    ports:
+      - "3001:3001"
+
+  # ── MCP: Memory (Knowledge Graph) ────────────────────────
+  mcp-memory:
+    image: node:20-alpine
+    container_name: agentropolis-mcp-memory
+    restart: unless-stopped
+    command: npx -y @modelcontextprotocol/server-memory
+    volumes:
+      - memory_data:/memory
+    environment:
+      - MEMORY_FILE_PATH=/memory/knowledge-graph.json
+    ports:
+      - "3002:3002"
+
+  # ── MCP: Fetch (Web Intelligence) ────────────────────────
+  mcp-fetch:
+    image: node:20-alpine
+    container_name: agentropolis-mcp-fetch
+    restart: unless-stopped
+    command: npx -y @modelcontextprotocol/server-fetch
+    ports:
+      - "3003:3003"
+
+  # ── MCP: Git (Config Auto-Update) ────────────────────────
+  mcp-git:
+    image: python:3.11-alpine
+    container_name: agentropolis-mcp-git
+    restart: unless-stopped
+    command: sh -c "pip install uvx && uvx mcp-server-git --repository /repo"
+    volumes:
+      - repo_data:/repo
+    ports:
+      - "3004:3004"
+
+  # ── MCP: Sequential Thinking (ARCHITECT Layer) ───────────
+  mcp-sequential:
+    image: node:20-alpine
+    container_name: agentropolis-mcp-sequential
+    restart: unless-stopped
+    command: npx -y @modelcontextprotocol/server-sequential-thinking
+    ports:
+      - "3005:3005"
+
+  # ── Node Health Monitor ───────────────────────────────────
+  monitor:
+    image: node:20-alpine
+    container_name: agentropolis-monitor
+    restart: unless-stopped
+    working_dir: /monitor
+    command: node index.js
+    volumes:
+      - ./node/monitor:/monitor
+    environment:
+      - RELAY_URL=http://relay:8080
+      - COORDINATOR_URL=${RELAY_COORDINATOR_URL:-https://agentropolis.chaoswired.workers.dev}
+      - NODE_ID=${NODE_ID}
+      - OPERATOR_WALLET=${OPERATOR_WALLET}
+      - PING_INTERVAL_MS=30000
+    depends_on:
+      - relay
+
+volumes:
+  ollama_data:
+  relay_data:
+  node_data:
+  memory_data:
+  repo_data:
+
+networks:
+  default:
+    name: agentropolis-mesh
