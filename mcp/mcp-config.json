@@ -1,0 +1,51 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/data"],
+      "description": "Local district data storage",
+      "license": "MIT",
+      "source": "https://github.com/modelcontextprotocol/servers"
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "description": "Knowledge graph persistent memory — agent state survives reboots",
+      "license": "MIT",
+      "source": "https://github.com/modelcontextprotocol/servers"
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "description": "Web content ingestion for agent intelligence",
+      "license": "MIT",
+      "source": "https://github.com/modelcontextprotocol/servers"
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "/repo"],
+      "description": "Git operations — node pulls config and model updates",
+      "license": "MIT",
+      "source": "https://github.com/modelcontextprotocol/servers"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "ARCHITECT layer — structured multi-step reasoning",
+      "license": "MIT",
+      "source": "https://github.com/modelcontextprotocol/servers"
+    },
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--supabase-url", "${SUPABASE_URL}", "--supabase-service-role-key", "${SUPABASE_SERVICE_ROLE_KEY}"],
+      "description": "District registry, citizen data, $XENTS balances",
+      "license": "Apache-2.0",
+      "source": "https://github.com/supabase/mcp-server-supabase",
+      "optional": true
+    }
+  },
+  "rangerWhitelist": true,
+  "rangerVersion": "1.0.0",
+  "protocol": "AGENTROPOLIS-OFFGRID",
+  "coordinatorUrl": "https://agentropolis.chaoswired.workers.dev"
+}
