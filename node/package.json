@@ -1,0 +1,16 @@
+{
+  "name": "agentropolis-relay",
+  "version": "1.0.0",
+  "description": "AGENTROPOLIS OFFGRID RELAY MCP Coordination Server",
+  "main": "src/relay.js",
+  "scripts": {
+    "start": "node src/relay.js",
+    "dev": "node --watch src/relay.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
+  },
+  "license": "Apache-2.0"
+}
